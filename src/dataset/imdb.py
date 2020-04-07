@@ -258,7 +258,7 @@ class imdb(object):
     # load detections
     with open(det_error_file) as f:
       lines = f.readlines()
-      random.shuffle(lines)
+      #random.shuffle(lines)
     f.close()
 
     dets_per_type = {}
@@ -282,24 +282,25 @@ class imdb(object):
 
     out_ims = []
     # Randomly select some detections and plot them
-    COLOR = (200, 200, 0)
-    for error_type, dets in dets_per_type.iteritems():
+    COLOR = (200, 0, 200)
+    for error_type, dets in dets_per_type.items():
+      im_idx_list = list(set([det['im_idx'] for det in dets]))
       det_im_dir = os.path.join(output_image_dir, error_type)
       if os.path.exists(det_im_dir):
         shutil.rmtree(det_im_dir)
       os.makedirs(det_im_dir)
-
-      for i in range(min(num_det_per_type, len(dets))):
-        det = dets[i]
-        im = Image.open(
-            os.path.join(image_dir, det['im_idx']+image_format))
+      for im_idx in im_idx_list:
+        im = Image.open(os.path.join(image_dir, im_idx+image_format))
+        im = im.convert('RGB')
         draw = ImageDraw.Draw(im)
-        draw.rectangle(det['bbox'], outline=COLOR)
-        draw.text((det['bbox'][0], det['bbox'][1]), 
+        for det in dets:
+          if det['im_idx'] == im_idx:
+            draw.rectangle(det['bbox'], outline=COLOR)
+            draw.text((det['bbox'][0], det['bbox'][1]), 
                   '{:s} ({:.2f})'.format(det['class'], det['score']),
                   fill=COLOR)
-        out_im_path = os.path.join(det_im_dir, str(i)+image_format)
-        im.save(out_im_path)
+            out_im_path = os.path.join(det_im_dir, im_idx + image_format)
+            im.save(out_im_path)
         im = np.array(im)
         out_ims.append(im[:,:,::-1]) # RGB to BGR
     return out_ims

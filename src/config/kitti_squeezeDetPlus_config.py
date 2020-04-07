@@ -4,15 +4,15 @@
 
 import numpy as np
 
-from config import base_model_config
+from .config import base_model_config
 
 def kitti_squeezeDetPlus_config():
   """Specify the parameters to tune below."""
   mc                       = base_model_config('KITTI')
 
-  mc.IMAGE_WIDTH           = 1242
-  mc.IMAGE_HEIGHT          = 375
-  mc.BATCH_SIZE            = 20
+  mc.IMAGE_WIDTH           = 1216
+  mc.IMAGE_HEIGHT          = 816
+  mc.BATCH_SIZE            = 2
 
   mc.WEIGHT_DECAY          = 0.0001
   mc.LEARNING_RATE         = 0.01
@@ -26,31 +26,29 @@ def kitti_squeezeDetPlus_config():
   mc.LOSS_COEF_CONF_NEG    = 100.0
   mc.LOSS_COEF_CLASS       = 1.0
 
-  mc.PLOT_PROB_THRESH      = 0.4
-  mc.NMS_THRESH            = 0.4
-  mc.PROB_THRESH           = 0.005
-  mc.TOP_N_DETECTION       = 64
+  mc.PLOT_PROB_THRESH      = 0.2
+  mc.NMS_THRESH            = 0.2 # bboxes are considered as overlapped if their iou is larger than this value
+  mc.PROB_THRESH           = 0.05 # 
+  mc.TOP_N_DETECTION       = 20
 
-  mc.DATA_AUGMENTATION     = True
+  mc.DATA_AUGMENTATION     = False
   mc.DRIFT_X               = 150
   mc.DRIFT_Y               = 100
   mc.EXCLUDE_HARD_EXAMPLES = False
 
   mc.ANCHOR_BOX            = set_anchors(mc)
   mc.ANCHORS               = len(mc.ANCHOR_BOX)
-  mc.ANCHOR_PER_GRID       = 9
+  mc.ANCHOR_PER_GRID       = 2
 
   return mc
 
 def set_anchors(mc):
-  H, W, B = 22, 76, 9
+  H, W, B = 51, 76, 2
   anchor_shapes = np.reshape(
       [np.array(
-          [[  36.,  37.], [ 366., 174.], [ 115.,  59.],
-           [ 162.,  87.], [  38.,  90.], [ 258., 173.],
-           [ 224., 108.], [  78., 170.], [  72.,  43.]])] * H * W,
+          [[  300.,  60.],[  300.,  100.]])] * H * W,
       (H, W, B, 2)
-  )
+  ) # 51,76,1,2
   center_x = np.reshape(
       np.transpose(
           np.reshape(
@@ -75,5 +73,4 @@ def set_anchors(mc):
       np.concatenate((center_x, center_y, anchor_shapes), axis=3),
       (-1, 4)
   )
-
   return anchors

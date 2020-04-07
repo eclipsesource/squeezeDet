@@ -4,7 +4,7 @@
 
 import numpy as np
 
-from config import base_model_config
+from .config import base_model_config
 
 def kitti_squeezeDet_config():
   """Specify the parameters to tune below."""
@@ -51,7 +51,7 @@ def set_anchors(mc):
            [ 224., 108.], [  78., 170.], [  72.,  43.]])] * H * W,
       (H, W, B, 2)
   )
-  center_x = np.reshape(
+  center_x = np.reshape( # coord of each samll grid
       np.transpose(
           np.reshape(
               np.array([np.arange(1, W+1)*float(mc.IMAGE_WIDTH)/(W+1)]*H*B), 

@@ -25,22 +25,22 @@ FLAGS = tf.app.flags.FLAGS
 
 tf.app.flags.DEFINE_string('dataset', 'KITTI',
                            """Currently support PASCAL_VOC or KITTI dataset.""")
-tf.app.flags.DEFINE_string('data_path', '', """Root directory of data""")
-tf.app.flags.DEFINE_string('image_set', 'test',
+tf.app.flags.DEFINE_string('data_path', 'data/KITTI', """Root directory of data""")
+tf.app.flags.DEFINE_string('image_set', 'val',
                            """Only used for VOC data."""
                            """Can be train, trainval, val, or test""")
 tf.app.flags.DEFINE_string('year', '2007',
                             """VOC challenge year. 2007 or 2012"""
                             """Only used for VOC data""")
-tf.app.flags.DEFINE_string('eval_dir', '/tmp/bichen/logs/squeezeDet/eval',
+tf.app.flags.DEFINE_string('eval_dir', 'tmp/logs/eval',
                             """Directory where to write event logs """)
-tf.app.flags.DEFINE_string('checkpoint_path', '/tmp/bichen/logs/squeezeDet/train',
+tf.app.flags.DEFINE_string('checkpoint_path', 'tmp/logs/train',
                             """Path to the training checkpoint.""")
 tf.app.flags.DEFINE_integer('eval_interval_secs', 60 * 1,
                              """How often to check if new cpt is saved.""")
 tf.app.flags.DEFINE_boolean('run_once', False,
                              """Whether to run eval only once.""")
-tf.app.flags.DEFINE_string('net', 'squeezeDet',
+tf.app.flags.DEFINE_string('net', 'squeezeDet+',
                            """Neural net architecture.""")
 tf.app.flags.DEFINE_string('gpu', '0', """gpu id.""")
 
@@ -114,7 +114,7 @@ def eval_once(
       feed_dict[eval_summary_phs['APs/'+cls]] = ap
       print ('    {}: {:.3f}'.format(cls, ap))
 
-    print ('    Mean average precision: {:.3f}'.format(np.mean(aps)))
+    print ('Mean average precision: {:.3f}'.format(np.mean(aps)))
     feed_dict[eval_summary_phs['APs/mAP']] = np.mean(aps)
     feed_dict[eval_summary_phs['timing/im_detect']] = \
         _t['im_detect'].average_time
@@ -218,7 +218,10 @@ def evaluate():
       else:
         # When run_once is false, checkpoint_path should point to the directory
         # that stores checkpoint files.
+        from os.path import basename
         ckpt = tf.train.get_checkpoint_state(FLAGS.checkpoint_path)
+        #base_name, max_idx = ckpt.model_checkpoint_path.split('-')
+        #for idx in range(0, int(max_idx), )
         if ckpt and ckpt.model_checkpoint_path:
           if ckpt.model_checkpoint_path in ckpts:
             # Do not evaluate on the same checkpoint

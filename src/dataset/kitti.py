@@ -12,13 +12,13 @@ from utils.util import bbox_transform_inv, batch_iou
 
 class kitti(imdb):
   def __init__(self, image_set, data_path, mc):
-    imdb.__init__(self, 'kitti_'+image_set, mc)
+    imdb.__init__(self, 'kitti_'+ image_set, mc)
     self._image_set = image_set
     self._data_root_path = data_path
     self._image_path = os.path.join(self._data_root_path, 'training', 'image_2')
     self._label_path = os.path.join(self._data_root_path, 'training', 'label_2')
     self._classes = self.mc.CLASS_NAMES
-    self._class_to_idx = dict(zip(self.classes, xrange(self.num_classes)))
+    self._class_to_idx = dict(zip(self.classes, range(self.num_classes)))
 
     # a list of string indices of images in the directory
     self._image_idx = self._load_image_set_idx() 
@@ -118,7 +118,7 @@ class kitti(imdb):
       with open(filename, 'wt') as f:
         for cls_idx, cls in enumerate(self._classes):
           dets = all_boxes[cls_idx][im_idx]
-          for k in xrange(len(dets)):
+          for k in range(len(dets)):
             f.write(
                 '{:s} -1 -1 0.0 {:.2f} {:.2f} {:.2f} {:.2f} 0.0 0.0 0.0 0.0 0.0 '
                 '0.0 0.0 {:.3f}\n'.format(

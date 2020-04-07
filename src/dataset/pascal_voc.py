@@ -2,7 +2,7 @@
 
 """Image data base class for pascal voc"""
 
-import cv2
+#import cv2
 import os 
 import numpy as np
 import xml.etree.ElementTree as ET

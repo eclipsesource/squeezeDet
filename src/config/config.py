@@ -23,8 +23,8 @@ def base_model_config(dataset='PASCAL_VOC'):
                        'horse', 'motorbike', 'person', 'pottedplant', 'sheep',
                        'sofa', 'train', 'tvmonitor')
   elif cfg.DATASET == 'KITTI':
-    cfg.CLASS_NAMES = ('car', 'pedestrian', 'cyclist')
-
+    #cfg.CLASS_NAMES = ('car', 'pedestrian', 'cyclist')
+    cfg.CLASS_NAMES = (['checkbox'])
   # number of categories to classify
   cfg.CLASSES = len(cfg.CLASS_NAMES)    
 
@@ -53,7 +53,7 @@ def base_model_config(dataset='PASCAL_VOC'):
   cfg.ANCHORS = len(cfg.ANCHOR_BOX)
 
   # number of anchor boxes per grid
-  cfg.ANCHOR_PER_GRID = -1
+  cfg.ANCHOR_PER_GRID = 1
 
   # batch size
   cfg.BATCH_SIZE = 20
@@ -69,8 +69,8 @@ def base_model_config(dataset='PASCAL_VOC'):
 
   # Pixel mean values (BGR order) as a (1, 1, 3) array. Below is the BGR mean
   # of VGG16
-  cfg.BGR_MEANS = np.array([[[103.939, 116.779, 123.68]]])
-
+  #cfg.BGR_MEANS = np.array([[[103.939, 116.779, 123.68]]])
+  cfg.BGR_MEANS = np.array([[[0, 0, 0]]])
   # loss coefficient for confidence regression
   cfg.LOSS_COEF_CONF = 1.0
 

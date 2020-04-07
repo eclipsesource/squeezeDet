@@ -26,7 +26,7 @@ FLAGS = tf.app.flags.FLAGS
 
 tf.app.flags.DEFINE_string('dataset', 'KITTI',
                            """Currently only support KITTI dataset.""")
-tf.app.flags.DEFINE_string('data_path', '', """Root directory of data""")
+tf.app.flags.DEFINE_string('data_path', './data/KITTI', """Root directory of data""")
 tf.app.flags.DEFINE_string('image_set', 'train',
                            """ Can be train, trainval, val, or test""")
 tf.app.flags.DEFINE_string('year', '2007',
@@ -39,11 +39,11 @@ tf.app.flags.DEFINE_integer('max_steps', 1000000,
                             """Maximum number of batches to run.""")
 tf.app.flags.DEFINE_string('net', 'squeezeDet',
                            """Neural net architecture. """)
-tf.app.flags.DEFINE_string('pretrained_model_path', '',
+tf.app.flags.DEFINE_string('pretrained_model_path', './data/SqueezeNet/squeezenet_v1.0_SR_0.750.pkl',
                            """Path to the pretrained model.""")
-tf.app.flags.DEFINE_integer('summary_step', 10,
+tf.app.flags.DEFINE_integer('summary_step', 1,
                             """Number of steps to save summary.""")
-tf.app.flags.DEFINE_integer('checkpoint_step', 1000,
+tf.app.flags.DEFINE_integer('checkpoint_step', 1,
                             """Number of steps to save summary.""")
 tf.app.flags.DEFINE_string('gpu', '0', """gpu id.""")
 
@@ -232,7 +232,7 @@ def train():
             print ("added to the queue")
         if mc.DEBUG_MODE:
           print ("Finished enqueue")
-      except Exception, e:
+      except Exception as e:
         coord.request_stop(e)
 
     sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True))
@@ -243,7 +243,7 @@ def train():
     ckpt = tf.train.get_checkpoint_state(FLAGS.train_dir)
     if ckpt and ckpt.model_checkpoint_path:
         saver.restore(sess, ckpt.model_checkpoint_path)
-
+        
     summary_writer = tf.summary.FileWriter(FLAGS.train_dir, sess.graph)
 
     init = tf.global_variables_initializer()

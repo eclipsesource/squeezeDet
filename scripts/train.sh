@@ -2,7 +2,7 @@
 
 export GPUID=0
 export NET="squeezeDet"
-export TRAIN_DIR="/tmp/bichen/logs/SqueezeDet/"
+export TRAIN_DIR="./tmp/logs"
 
 if [ $# -eq 0 ]
 then
@@ -76,6 +76,6 @@ python ./src/train.py \
   --image_set=train \
   --train_dir="$TRAIN_DIR/train" \
   --net=$NET \
-  --summary_step=100 \
-  --checkpoint_step=500 \
+  --summary_step=10 \
+  --checkpoint_step=10 \
   --gpu=$GPUID

@@ -9,9 +9,9 @@ from __future__ import print_function
 import os
 import sys
 
-import joblib
+#import joblib
 from utils import util
-from easydict import EasyDict as edict
+#from easydict import EasyDict as edict
 import numpy as np
 import tensorflow as tf
 from nn_skeleton import ModelSkeleton

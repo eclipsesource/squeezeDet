@@ -30,7 +30,7 @@ const int32_t MAX_OCCLUSION[3]  = {0, 1, 2};        // maximum occlusion level o
 const double  MAX_TRUNCATION[3] = {0.15, 0.3, 0.5}; // maximum truncation level of the groundtruth used for evaluation
 
 // evaluated object classes
-enum CLASSES{CAR=0, PEDESTRIAN=1, CYCLIST=2};
+enum CLASSES{CAR=3, PEDESTRIAN=1, CYCLIST=2, CHECKBOX=0};
 
 // parameters varying per class
 vector<string> CLASS_NAMES;
@@ -41,6 +41,7 @@ const double N_SAMPLE_PTS = 41;
 
 // initialize class names
 void initGlobals () {
+  CLASS_NAMES.push_back("checkbox");
   CLASS_NAMES.push_back("car");
   CLASS_NAMES.push_back("pedestrian");
   CLASS_NAMES.push_back("cyclist");
@@ -102,7 +103,7 @@ struct tDetection {
 FUNCTIONS TO LOAD DETECTION AND GROUND TRUTH DATA ONCE, SAVE RESULTS
 =======================================================================*/
 
-vector<tDetection> loadDetections(string file_name, bool &compute_aos, bool &eval_car, bool &eval_pedestrian, bool &eval_cyclist, bool &success) {
+vector<tDetection> loadDetections(string file_name, bool &compute_aos, bool &eval_car, bool &eval_pedestrian, bool &eval_cyclist, bool &eval_checkbox, bool &success) {
 
   // holds all detections (ignored detections are indicated by an index vector
   vector<tDetection> detections;
@@ -126,7 +127,8 @@ vector<tDetection> loadDetections(string file_name, bool &compute_aos, bool &eva
       // orientation=-10 is invalid, AOS is not evaluated if at least one orientation is invalid
       if(d.box.alpha==-10)
         compute_aos = false;
-
+      if(!eval_checkbox && !strcasecmp(d.box.type.c_str(), "checkbox"))
+        eval_checkbox = true;
       // a class is only evaluated if it is detected at least once
       if(!eval_car && !strcasecmp(d.box.type.c_str(), "car"))
         eval_car = true;
@@ -160,6 +162,7 @@ vector<tGroundtruth> loadGroundtruth(string file_name,bool &success) {
                    &trash,      &trash,        &trash,       &trash,
                    &trash,      &trash,        &trash )==15) {
       g.box.type = str;
+
       groundtruth.push_back(g);
     }
   }
@@ -561,7 +564,7 @@ bool eval_class (FILE *fp_det, FILE *fp_ap, FILE *fp_ori, CLASSES current_class,
     aos.assign(N_SAMPLE_PTS, 0);
   double r=0;
   for (int32_t i=0; i<thresholds.size(); i++){
-    r = pr[i].tp/(double)(pr[i].tp + pr[i].fn);
+    r = pr[i].tp/(double)(pr[i].tp + pr[i].fn); //recall
     recall.push_back(r);
     precision[i] = pr[i].tp/(double)(pr[i].tp + pr[i].fp);
     if(compute_aos)
@@ -650,7 +653,6 @@ bool eval(string const & result_dir, string const & image_set_filename, string c
   // ground truth and result directories
 //  string result_dir     = "results/" + result_sha;
   string plot_dir       = result_dir + "/plot";
-
   // create output directories
   system(("mkdir " + plot_dir).c_str());
 
@@ -660,7 +662,7 @@ bool eval(string const & result_dir, string const & image_set_filename, string c
 
   // holds wether orientation similarity shall be computed (might be set to false while loading detections)
   // and which labels where provided by this submission
-  bool compute_aos=true, eval_car=false, eval_pedestrian=false, eval_cyclist=false;
+  bool compute_aos=true, eval_car=false, eval_pedestrian=false, eval_cyclist=false, eval_checkbox=false;
 
   // get image names
   FILE *fp = fopen( image_set_filename.c_str(),"r" );
@@ -688,17 +690,16 @@ bool eval(string const & result_dir, string const & image_set_filename, string c
     // file name
     char file_name[256];
     sprintf(file_name,"%s.txt", image_set[i].c_str());
-
     // read ground truth and result poses
     bool gt_success,det_success;
     vector<tGroundtruth> gt   = loadGroundtruth(ospj(gt_dir,file_name),gt_success);
-    vector<tDetection>   det  = loadDetections(ospj(result_dir,"data",file_name), compute_aos, eval_car, eval_pedestrian, eval_cyclist,det_success);
+    vector<tDetection>   det  = loadDetections(ospj(result_dir,"data",file_name), compute_aos, eval_car, eval_pedestrian, eval_cyclist, eval_checkbox, det_success);
     groundtruth.push_back(gt);
     detections.push_back(det);
 
     // check for errors
     if (!gt_success) {
-      mail->msg("ERROR: Couldn't read: %s of ground truth. Please write me an email!", file_name);
+      mail->msg("ERROR: Couldn't read: %s of ground truth.", file_name);
       return false;
     }
     if (!det_success) {
@@ -710,7 +711,27 @@ bool eval(string const & result_dir, string const & image_set_filename, string c
 
   // holds pointers for result files
   FILE *fp_det=0, *fp_ap=0, *fp_ori=0;
-
+  // eval checkboxes
+  if(eval_checkbox){
+    fp_det = fopen((result_dir + "/stats_" + CLASS_NAMES[CHECKBOX] + "_detection.txt").c_str(),"w");
+    fp_ap = fopen((result_dir + "/stats_" + CLASS_NAMES[CHECKBOX] + "_ap.txt").c_str(),"w");
+    if(compute_aos)
+      fp_ori = fopen((result_dir + "/stats_" + CLASS_NAMES[CHECKBOX] + "_orientation.txt").c_str(),"w");
+    vector<double> precision[3], aos[3];
+    if( !eval_class(fp_det,fp_ap,fp_ori,CHECKBOX,groundtruth,detections,compute_aos,precision[0],aos[0],EASY,N_TESTIMAGES)
+       || !eval_class(fp_det,fp_ap,fp_ori,CHECKBOX,groundtruth,detections,compute_aos,precision[1],aos[1],MODERATE, N_TESTIMAGES)
+       || !eval_class(fp_det,fp_ap,fp_ori,CHECKBOX,groundtruth,detections,compute_aos,precision[2],aos[2],HARD, N_TESTIMAGES)){
+      mail->msg("Checkbox evaluation failed.");
+      return false;
+    }
+    fclose(fp_det);
+    fclose(fp_ap);
+    saveAndPlotPlots(plot_dir,CLASS_NAMES[CHECKBOX] + "_detection",CLASS_NAMES[CHECKBOX],precision,0);
+    if(compute_aos){
+      saveAndPlotPlots(plot_dir,CLASS_NAMES[CHECKBOX] + "_orientation",CLASS_NAMES[CHECKBOX],aos,1);
+      fclose(fp_ori);
+    }
+  }
   // eval cars
   if(eval_car){
     fp_det = fopen((result_dir + "/stats_" + CLASS_NAMES[CAR] + "_detection.txt").c_str(),"w");
@@ -798,7 +819,7 @@ int32_t main (int32_t argc,char *argv[]) {
 
   // init notification mail
   Mail *mail = new Mail();
-  mail->msg("Thank you for participating in our evaluation!");
+  mail->msg("Evaluating!");
 
   // run evaluation
   if (eval( result_dir, image_set_filename, gt_dir, mail, N_TESTIMAGES )) {

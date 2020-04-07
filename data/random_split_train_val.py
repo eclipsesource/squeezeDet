@@ -12,9 +12,8 @@ with open(trainval_file) as f:
 f.close()
 
 idx = np.random.permutation(idx)
-
-train_idx = sorted(idx[:len(idx)/2])
-val_idx = sorted(idx[len(idx)/2:])
+train_idx = sorted(idx[:int(len(idx)/5*4)])
+val_idx = sorted(idx[int(len(idx)/5*4):])
 
 with open(train_file, 'w') as f:
   for i in train_idx:
@@ -26,5 +25,5 @@ with open(val_file, 'w') as f:
     f.write('{}\n'.format(i))
 f.close()
 
-print 'Trainining set is saved to ' + train_file
-print 'Validation set is saved to ' + val_file
+print ('Trainining set is saved to ' + train_file)
+print ('alidation set is saved to ' + val_file)

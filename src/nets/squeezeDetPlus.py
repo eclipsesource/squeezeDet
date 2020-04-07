@@ -39,9 +39,9 @@ class SqueezeDetPlus(ModelSkeleton):
 
     conv1 = self._conv_layer(
         'conv1', self.image_input, filters=96, size=7, stride=2,
-        padding='VALID', freeze=True)
+        padding='SAME', freeze=True)
     pool1 = self._pooling_layer(
-        'pool1', conv1, size=3, stride=2, padding='VALID')
+        'pool1', conv1, size=3, stride=2, padding='SAME')
 
     fire2 = self._fire_layer(
         'fire2', pool1, s1x1=96, e1x1=64, e3x3=64, freeze=False)
@@ -50,7 +50,7 @@ class SqueezeDetPlus(ModelSkeleton):
     fire4 = self._fire_layer(
         'fire4', fire3, s1x1=192, e1x1=128, e3x3=128, freeze=False)
     pool4 = self._pooling_layer(
-        'pool4', fire4, size=3, stride=2, padding='VALID')
+        'pool4', fire4, size=3, stride=2, padding='SAME')
 
     fire5 = self._fire_layer(
         'fire5', pool4, s1x1=192, e1x1=128, e3x3=128, freeze=False)
@@ -61,7 +61,7 @@ class SqueezeDetPlus(ModelSkeleton):
     fire8 = self._fire_layer(
         'fire8', fire7, s1x1=384, e1x1=256, e3x3=256, freeze=False)
     pool8 = self._pooling_layer(
-        'pool8', fire8, size=3, stride=2, padding='VALID')
+        'pool8', fire8, size=3, stride=2, padding='SAME')
 
     fire9 = self._fire_layer(
         'fire9', pool8, s1x1=384, e1x1=256, e3x3=256, freeze=False)
@@ -72,7 +72,6 @@ class SqueezeDetPlus(ModelSkeleton):
     fire11 = self._fire_layer(
         'fire11', fire10, s1x1=384, e1x1=256, e3x3=256, freeze=False)
     dropout11 = tf.nn.dropout(fire11, self.keep_prob, name='drop11')
-
     num_output = mc.ANCHOR_PER_GRID * (mc.CLASSES + 1 + 4)
     self.preds = self._conv_layer(
         'conv12', dropout11, filters=num_output, size=3, stride=1,
