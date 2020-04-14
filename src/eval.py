@@ -45,6 +45,30 @@ tf.app.flags.DEFINE_string('net', 'squeezeDet+',
 tf.app.flags.DEFINE_string('gpu', '0', """gpu id.""")
 
 
+def _draw_box(im, box_list, label, color=(0,255,0), cdict=None, form='center'):
+  assert form == 'center' or form == 'diagonal', \
+      'bounding box format not accepted: {}.'.format(form)
+
+  for bbox in box_list:
+
+    if form == 'center':
+      bbox = bbox_transform(bbox)
+
+    xmin, ymin, xmax, ymax = [int(b) for b in bbox]
+
+    l = label.split(':')[0] # text before "CLASS: (PROB)"
+    if cdict and l in cdict:
+      c = cdict[l]
+    else:
+      c = color
+
+    # draw box
+    cv2.rectangle(im, (xmin, ymin), (xmax, ymax), c, 1)
+    # draw label
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(im, label, (xmin, ymax), font, 0.3, c, 1)
+
+
 def eval_once(
     saver, ckpt_path, summary_writer, eval_summary_ops, eval_summary_phs, imdb,
     model):
@@ -78,10 +102,11 @@ def eval_once(
       _t['im_detect'].toc()
 
       _t['misc'].tic()
+      
       for j in range(len(det_boxes)): # batch
         # rescale
-        det_boxes[j, :, 0::2] /= scales[j][0]
-        det_boxes[j, :, 1::2] /= scales[j][1]
+        #det_boxes[j, :, 0::2] /= scales[j][0]
+        #det_boxes[j, :, 1::2] /= scales[j][1]
 
         det_bbox, score, det_class = model.filter_prediction(
             det_boxes[j], det_probs[j], det_class[j])
@@ -132,6 +157,14 @@ def eval_once(
     eval_summary_str = sess.run(eval_summary_ops, feed_dict=feed_dict)
     for sum_str in eval_summary_str:
       summary_writer.add_summary(sum_str, global_step)
+    
+    _draw_box(*images, det_bbox, model.mc.CLASS_NAMES[det_class[0]], (0, 255, 0))
+
+    viz_summary = sess.run(
+        model.viz_op, feed_dict={model.image_to_show: images})
+
+    summary_writer.add_summary(viz_summary, global_step)
+    summary_writer.flush()
 
 def evaluate():
   """Evaluate."""
@@ -234,6 +267,7 @@ def evaluate():
             eval_once(
                 saver, ckpt.model_checkpoint_path, summary_writer,
                 eval_summary_ops, eval_summary_phs, imdb, model)
+            
         else:
           print('No checkpoint file found')
           if not FLAGS.run_once:
