@@ -1,0 +1,13 @@
+name: sqd
+channels:
+  - anaconda
+  - menpo
+  - conda-forge
+  - defaults
+dependencies:
+  - tensorflow=1.13.1
+  - pillow=7.0.0
+  - joblib=0.14.1
+  - easydict=1.9
+  - opencv=4.2.0
+  - numpy=1.18.1
