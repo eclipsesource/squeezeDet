@@ -84,11 +84,11 @@ class imdb(object):
 
     images, scales = [], []
     for i in batch_idx:
-      im = cv2.imread(self._image_path_at(i))
+      im = np.expand_dims(cv2.imread(self._image_path_at(i), cv2.IMREAD_GRAYSCALE), -1)
       im = im.astype(np.float32, copy=False)
-      im -= mc.BGR_MEANS
+      im -= mc.GRAY_MEANS
       orig_h, orig_w, _ = [float(v) for v in im.shape]
-      im = cv2.resize(im, (mc.IMAGE_WIDTH, mc.IMAGE_HEIGHT))
+      im = np.expand_dims(cv2.resize(im, (mc.IMAGE_WIDTH, mc.IMAGE_HEIGHT)), -1)
       x_scale = mc.IMAGE_WIDTH/orig_w
       y_scale = mc.IMAGE_HEIGHT/orig_h
       images.append(im)
@@ -96,7 +96,7 @@ class imdb(object):
 
     return images, scales
 
-  def read_batch(self, shuffle=True):
+  def read_batch(self, shuffle=True, train=True):
     """Read a batch of image and bounding box annotations.
     Args:
       shuffle: whether or not to shuffle the dataset
@@ -140,8 +140,12 @@ class imdb(object):
 
     for idx in batch_idx:
       # load the image
-      im = cv2.imread(self._image_path_at(idx)).astype(np.float32, copy=False)
-      im -= mc.BGR_MEANS
+      if train:
+        im = np.expand_dims(cv2.imread(self._image_path_at(idx), cv2.IMREAD_GRAYSCALE), -1).astype(np.float32, copy=False)
+        im -= mc.GRAY_MEANS
+      else:
+        im =cv2.imread(self._image_path_at(idx)).astype(np.float32, copy=False)
+        im -= mc.BGR_MEANS
       orig_h, orig_w, _ = [float(v) for v in im.shape]
 
       # load annotations
@@ -182,7 +186,10 @@ class imdb(object):
           gt_bbox[:, 0] = orig_w - 1 - gt_bbox[:, 0]
 
       # scale image
-      im = cv2.resize(im, (mc.IMAGE_WIDTH, mc.IMAGE_HEIGHT))
+      if train:
+        im = np.expand_dims(cv2.resize(im, (mc.IMAGE_WIDTH, mc.IMAGE_HEIGHT)), -1)
+      else:
+        im = cv2.resize(im, (mc.IMAGE_WIDTH, mc.IMAGE_HEIGHT))
       image_per_batch.append(im)
 
       # scale annotation

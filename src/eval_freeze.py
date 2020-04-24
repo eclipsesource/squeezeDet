@@ -35,7 +35,7 @@ def main(argv=None):  # pylint: disable=unused-argument
         mc = kitti_squeezeDetPlus_config() # get model and config
         mc.LOAD_PRETRAINED_MODEL = False
         #mc.BATCH_SIZE=4
-        model = SqueezeDetPlus(mc)
+        model = SqueezeDetPlus(mc, state=val)
         #with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
             # Restores from checkpoint
             #print(sess.run([v for v in tf.trainable_variables() if v.name == "fire2/squeeze1x1/biases:0"][0]))

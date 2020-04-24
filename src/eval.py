@@ -197,7 +197,7 @@ def evaluate():
       mc = kitti_squeezeDetPlus_config()
       mc.BATCH_SIZE = 1 # TODO(bichen): allow batch size > 1
       mc.LOAD_PRETRAINED_MODEL = False
-      model = SqueezeDetPlus(mc)
+      model = SqueezeDetPlus(mc, state='val')
 
     imdb = kitti(FLAGS.image_set, FLAGS.data_path, mc)
 

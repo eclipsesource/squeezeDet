@@ -17,15 +17,15 @@ import tensorflow as tf
 from nn_skeleton import ModelSkeleton
 
 class SqueezeDetPlus(ModelSkeleton):
-  def __init__(self, mc, gpu_id=0):
-    with tf.device('/gpu:{}'.format(gpu_id)):
+  def __init__(self, mc, gpu_id=0, state = 'train'):
+    with tf.device('/cpu:{}'.format(gpu_id)):
       ModelSkeleton.__init__(self, mc)
 
       self._add_forward_graph()
       self._add_interpretation_graph()
       self._add_loss_graph()
       self._add_train_graph()
-      self._add_viz_graph()
+      self._add_viz_graph(state)
 
   def _add_forward_graph(self):
     """NN architecture."""
@@ -71,7 +71,7 @@ class SqueezeDetPlus(ModelSkeleton):
         'fire10', fire9, s1x1=384, e1x1=256, e3x3=256, freeze=False)
     fire11 = self._fire_layer(
         'fire11', fire10, s1x1=384, e1x1=256, e3x3=256, freeze=False)
-    dropout11 = tf.nn.dropout(fire11, self.keep_prob, name='drop11')
+    dropout11 = tf.nn.dropout(fire11, rate = 1-self.keep_prob, name='drop11')
     num_output = mc.ANCHOR_PER_GRID * (mc.CLASSES + 1 + 4)
     self.preds = self._conv_layer(
         'conv12', dropout11, filters=num_output, size=3, stride=1,

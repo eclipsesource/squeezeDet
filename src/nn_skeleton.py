@@ -79,7 +79,7 @@ class ModelSkeleton:
 
     # image batch input
     self.ph_image_input = tf.placeholder(
-        tf.float32, [mc.BATCH_SIZE, mc.IMAGE_HEIGHT, mc.IMAGE_WIDTH, 3],
+        tf.float32, [mc.BATCH_SIZE, mc.IMAGE_HEIGHT, mc.IMAGE_WIDTH, 1],
         name='image_input'
     )
     # A tensor where an element is 1 if the corresponding box is "responsible"
@@ -106,7 +106,7 @@ class ModelSkeleton:
         capacity=mc.QUEUE_CAPACITY,
         dtypes=[tf.float32, tf.float32, tf.float32, 
                 tf.float32, tf.float32],
-        shapes=[[mc.IMAGE_HEIGHT, mc.IMAGE_WIDTH, 3],
+        shapes=[[mc.IMAGE_HEIGHT, mc.IMAGE_WIDTH, 1],
                 [mc.ANCHORS, 1],
                 [mc.ANCHORS, 4],
                 [mc.ANCHORS, 4],
@@ -360,13 +360,19 @@ class ModelSkeleton:
     with tf.control_dependencies([apply_gradient_op]):
       self.train_op = tf.no_op(name='train')
 
-  def _add_viz_graph(self):
+  def _add_viz_graph(self, state):
     """Define the visualization operation."""
     mc = self.mc
-    self.image_to_show = tf.placeholder(
-        tf.float32, [None, mc.IMAGE_HEIGHT, mc.IMAGE_WIDTH, 3],
-        name='image_to_show'
-    )
+    if state == 'train':
+      self.image_to_show = tf.placeholder(
+          tf.float32, [None, mc.IMAGE_HEIGHT, mc.IMAGE_WIDTH, 3],
+          name='image_to_show'
+      )
+    else:
+      self.image_to_show = tf.placeholder(
+          tf.float32, [None, mc.IMAGE_HEIGHT, mc.IMAGE_WIDTH, 1],
+          name='image_to_show'
+      )
     self.viz_op = tf.summary.image('sample_detection_results',
         self.image_to_show, collections='image_summary',
         max_outputs=mc.BATCH_SIZE)
@@ -542,7 +548,7 @@ class ModelSkeleton:
       conv_bias = tf.nn.bias_add(conv, biases, name='bias_add')
   
       if relu:
-        out = tf.nn.relu(conv_bias, 'relu')
+        out = tf.nn.relu(conv_bias, name='relu')
       else:
         out = conv_bias
 

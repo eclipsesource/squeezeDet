@@ -130,7 +130,7 @@ def train():
       mc = kitti_squeezeDetPlus_config()
       mc.IS_TRAINING = True
       mc.PRETRAINED_MODEL_PATH = FLAGS.pretrained_model_path
-      model = SqueezeDetPlus(mc)
+      model = SqueezeDetPlus(mc, state='train')
 
     imdb = kitti(FLAGS.image_set, FLAGS.data_path, mc)
 
@@ -160,10 +160,10 @@ def train():
     print ('Model statistics saved to {}.'.format(
       os.path.join(FLAGS.train_dir, 'model_metrics.txt')))
 
-    def _load_data(load_to_placeholder=True):
+    def _load_data(load_to_placeholder=True, train=True):
       # read batch input
       image_per_batch, label_per_batch, box_delta_per_batch, aidx_per_batch, \
-          bbox_per_batch = imdb.read_batch()
+          bbox_per_batch = imdb.read_batch(train=train)
 
       label_indices, bbox_indices, box_delta_values, mask_indices, box_values, \
           = [], [], [], [], []
@@ -283,13 +283,14 @@ def train():
         _, loss_value, summary_str, det_boxes, det_probs, det_class, \
             conf_loss, bbox_loss, class_loss = sess.run(
                 op_list, feed_dict=feed_dict)
-
+        viz_feed_dict, viz_image_per_batch, viz_label_per_batch, viz_bbox_per_batch = \
+            _load_data(load_to_placeholder=False, train=False)
         _viz_prediction_result(
-            model, image_per_batch, bbox_per_batch, label_per_batch, det_boxes,
+            model, viz_image_per_batch, viz_bbox_per_batch, viz_label_per_batch, det_boxes,
             det_class, det_probs)
-        image_per_batch = bgr_to_rgb(image_per_batch)
+        viz_image_per_batch = bgr_to_rgb(viz_image_per_batch)
         viz_summary = sess.run(
-            model.viz_op, feed_dict={model.image_to_show: image_per_batch})
+            model.viz_op, feed_dict={model.image_to_show: viz_image_per_batch})
 
         summary_writer.add_summary(summary_str, step)
         summary_writer.add_summary(viz_summary, step)
