@@ -10,12 +10,12 @@ def kitti_squeezeDetPlus_config():
   """Specify the parameters to tune below."""
   mc                       = base_model_config('KITTI')
 
-  mc.IMAGE_WIDTH           = 1216
-  mc.IMAGE_HEIGHT          = 816
+  mc.IMAGE_WIDTH           = 816#608#1216
+  mc.IMAGE_HEIGHT          = 1216#400#816
   mc.BATCH_SIZE            = 2
 
   mc.WEIGHT_DECAY          = 0.0001
-  mc.LEARNING_RATE         = 0.01
+  mc.LEARNING_RATE         = 0.005
   mc.DECAY_STEPS           = 10000
   mc.MAX_GRAD_NORM         = 1.0
   mc.MOMENTUM              = 0.9
@@ -26,14 +26,16 @@ def kitti_squeezeDetPlus_config():
   mc.LOSS_COEF_CONF_NEG    = 100.0
   mc.LOSS_COEF_CLASS       = 1.0
 
+
+
   mc.PLOT_PROB_THRESH      = 0.2
   mc.NMS_THRESH            = 0.2 # bboxes are considered as overlapped if their iou is larger than this value
   mc.PROB_THRESH           = 0.05 # 
   mc.TOP_N_DETECTION       = 20
 
   mc.DATA_AUGMENTATION     = False
-  mc.DRIFT_X               = 150
-  mc.DRIFT_Y               = 100
+  mc.DRIFT_X               = 150#75#150
+  mc.DRIFT_Y               = 100#50#100
   mc.EXCLUDE_HARD_EXAMPLES = False
 
   mc.ANCHOR_BOX            = set_anchors(mc)
@@ -43,10 +45,12 @@ def kitti_squeezeDetPlus_config():
   return mc
 
 def set_anchors(mc):
-  H, W, B = 51, 76, 2
+  H, W, B = 76, 51, 2#25, 38, 2#51, 76, 2
   anchor_shapes = np.reshape(
       [np.array(
-          [[  300.,  60.],[  300.,  100.]])] * H * W,
+          #[[  300.,  60.],[  300.,  100.]])] * H * W,
+          #[[  120.,  30.],[  120.,  50.]])] * H * W,
+          [[  80.,  40.],[  80.,  60.]])] * H * W,
       (H, W, B, 2)
   ) # 51,76,1,2
   center_x = np.reshape(

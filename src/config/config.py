@@ -9,7 +9,7 @@ from easydict import EasyDict as edict
 
 def base_model_config(dataset='PASCAL_VOC'):
   assert dataset.upper()=='PASCAL_VOC' or dataset.upper()=='KITTI', \
-      'Currently only support PASCAL_VOC or KITTI dataset'
+      'Currently only support PASCAL_VOC or KITTI format'
 
   cfg = edict()
 
@@ -24,7 +24,7 @@ def base_model_config(dataset='PASCAL_VOC'):
                        'sofa', 'train', 'tvmonitor')
   elif cfg.DATASET == 'KITTI':
     #cfg.CLASS_NAMES = ('car', 'pedestrian', 'cyclist')
-    cfg.CLASS_NAMES = (['checkbox'])
+    cfg.CLASS_NAMES = (['checkbox', 'yes', 'no', 'empty', 'both'])
   # number of categories to classify
   cfg.CLASSES = len(cfg.CLASS_NAMES)    
 
@@ -71,6 +71,8 @@ def base_model_config(dataset='PASCAL_VOC'):
   # of VGG16
   #cfg.BGR_MEANS = np.array([[[103.939, 116.779, 123.68]]])
   cfg.BGR_MEANS = np.array([[[0, 0, 0]]])
+
+  cfg.GRAY_MEANS = np.array([[[0]]])
   # loss coefficient for confidence regression
   cfg.LOSS_COEF_CONF = 1.0
 

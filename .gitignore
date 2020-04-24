@@ -1,3 +1,16 @@
 *pyc
 data/out/
 data/model_checkpoints
+*png
+*txt
+*JPG
+*meta
+*index
+*gp
+*00001
+*pkl
+*tgz
+checkpoint*
+events*
+.vscode/launch.json
+.vscode/settings.json
