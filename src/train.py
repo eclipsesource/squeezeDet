@@ -6,10 +6,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import joblib
 import cv2
 from datetime import datetime
 import os.path
 import sys
+from os.path import isdir
 import time
 
 import numpy as np
@@ -22,6 +24,8 @@ from dataset import pascal_voc, kitti
 from utils.util import sparse_to_dense, bgr_to_rgb, bbox_transform
 from nets import *
 
+
+
 FLAGS = tf.app.flags.FLAGS
 
 tf.app.flags.DEFINE_string('dataset', 'KITTI',
@@ -32,18 +36,18 @@ tf.app.flags.DEFINE_string('image_set', 'train',
 tf.app.flags.DEFINE_string('year', '2007',
                             """VOC challenge year. 2007 or 2012"""
                             """Only used for Pascal VOC dataset""")
-tf.app.flags.DEFINE_string('train_dir', '/tmp/bichen/logs/squeezeDet/train',
+tf.app.flags.DEFINE_string('train_dir', 'tmp/logs/train',
                             """Directory where to write event logs """
                             """and checkpoint.""")
 tf.app.flags.DEFINE_integer('max_steps', 1000000,
                             """Maximum number of batches to run.""")
-tf.app.flags.DEFINE_string('net', 'squeezeDet',
+tf.app.flags.DEFINE_string('net', 'squeezeDet+',
                            """Neural net architecture. """)
 tf.app.flags.DEFINE_string('pretrained_model_path', './data/SqueezeNet/squeezenet_v1.0_SR_0.750.pkl',
                            """Path to the pretrained model.""")
-tf.app.flags.DEFINE_integer('summary_step', 1,
+tf.app.flags.DEFINE_integer('summary_step', 10,
                             """Number of steps to save summary.""")
-tf.app.flags.DEFINE_integer('checkpoint_step', 1,
+tf.app.flags.DEFINE_integer('checkpoint_step', 10,
                             """Number of steps to save summary.""")
 tf.app.flags.DEFINE_string('gpu', '0', """gpu id.""")
 
@@ -102,9 +106,9 @@ def _viz_prediction_result(model, images, bboxes, labels, batch_det_bbox,
 def train():
   """Train SqueezeDet model"""
   assert FLAGS.dataset == 'KITTI', \
-      'Currently only support KITTI dataset'
+      'Currently only support KITTI dataset format'
 
-  os.environ['CUDA_VISIBLE_DEVICES'] = FLAGS.gpu
+  #os.environ['CUDA_VISIBLE_DEVICES'] = FLAGS.gpu
 
   with tf.Graph().as_default():
 
@@ -135,30 +139,31 @@ def train():
     imdb = kitti(FLAGS.image_set, FLAGS.data_path, mc)
 
     # save model size, flops, activations by layers
-    with open(os.path.join(FLAGS.train_dir, 'model_metrics.txt'), 'w') as f:
-      f.write('Number of parameter by layer:\n')
-      count = 0
-      for c in model.model_size_counter:
-        f.write('\t{}: {}\n'.format(c[0], c[1]))
-        count += c[1]
-      f.write('\ttotal: {}\n'.format(count))
+    if not isdir(os.path.join(FLAGS.train_dir, 'model_metrics.txt')):
+      with open(os.path.join(FLAGS.train_dir, 'model_metrics.txt'), 'w') as f:
+        f.write('Number of parameter by layer:\n')
+        count = 0
+        for c in model.model_size_counter:
+          f.write('\t{}: {}\n'.format(c[0], c[1]))
+          count += c[1]
+        f.write('\ttotal: {}\n'.format(count))
 
-      count = 0
-      f.write('\nActivation size by layer:\n')
-      for c in model.activation_counter:
-        f.write('\t{}: {}\n'.format(c[0], c[1]))
-        count += c[1]
-      f.write('\ttotal: {}\n'.format(count))
+        count = 0
+        f.write('\nActivation size by layer:\n')
+        for c in model.activation_counter:
+          f.write('\t{}: {}\n'.format(c[0], c[1]))
+          count += c[1]
+        f.write('\ttotal: {}\n'.format(count))
 
-      count = 0
-      f.write('\nNumber of flops by layer:\n')
-      for c in model.flop_counter:
-        f.write('\t{}: {}\n'.format(c[0], c[1]))
-        count += c[1]
-      f.write('\ttotal: {}\n'.format(count))
-    f.close()
-    print ('Model statistics saved to {}.'.format(
-      os.path.join(FLAGS.train_dir, 'model_metrics.txt')))
+        count = 0
+        f.write('\nNumber of flops by layer:\n')
+        for c in model.flop_counter:
+          f.write('\t{}: {}\n'.format(c[0], c[1]))
+          count += c[1]
+        f.write('\ttotal: {}\n'.format(count))
+      f.close()
+      print ('Model statistics saved to {}.'.format(
+        os.path.join(FLAGS.train_dir, 'model_metrics.txt')))
 
     def _load_data(load_to_placeholder=True, train=True):
       # read batch input
@@ -239,15 +244,13 @@ def train():
 
     saver = tf.train.Saver(tf.global_variables())
     summary_op = tf.summary.merge_all()
-
+    init = tf.global_variables_initializer()
+    sess.run(init)
     ckpt = tf.train.get_checkpoint_state(FLAGS.train_dir)
     if ckpt and ckpt.model_checkpoint_path:
         saver.restore(sess, ckpt.model_checkpoint_path)
         
     summary_writer = tf.summary.FileWriter(FLAGS.train_dir, sess.graph)
-
-    init = tf.global_variables_initializer()
-    sess.run(init)
 
     coord = tf.train.Coordinator()
 
@@ -337,8 +340,10 @@ def train():
 
 def main(argv=None):  # pylint: disable=unused-argument
   if tf.gfile.Exists(FLAGS.train_dir):
-    tf.gfile.DeleteRecursively(FLAGS.train_dir)
-  tf.gfile.MakeDirs(FLAGS.train_dir)
+    #tf.gfile.DeleteRecursively(FLAGS.train_dir)
+    pass
+  else:
+    tf.gfile.MakeDirs(FLAGS.train_dir)
   train()
 
 
