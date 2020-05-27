@@ -289,7 +289,6 @@ class imdb(object):
             'score': float(obj[7])
         })
 
-    out_ims = []
     # Randomly select some detections and plot them
     COLOR = (200, 0, 200)
     for error_type, dets in dets_per_type.items():
@@ -309,8 +308,5 @@ class imdb(object):
                   '{:s} ({:.2f})'.format(det['class'], det['score']),
                   fill=COLOR)
             out_im_path = os.path.join(det_im_dir, im_idx + image_format)
-            im.save(out_im_path)
-        im = np.array(im)
-        out_ims.append(im[:,:,::-1]) # RGB to BGR
-    return out_ims
+        im.save(out_im_path)
 
