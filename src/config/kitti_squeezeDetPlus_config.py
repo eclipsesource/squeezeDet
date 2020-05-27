@@ -3,8 +3,10 @@
 """Model configuration for pascal dataset"""
 
 import numpy as np
+from pathlib import Path
 
 from .config import base_model_config
+import cv2 as cv
 
 def kitti_squeezeDetPlus_config():
   """Specify the parameters to tune below."""
@@ -42,6 +44,10 @@ def kitti_squeezeDetPlus_config():
   mc.ANCHORS               = len(mc.ANCHOR_BOX)
   mc.ANCHOR_PER_GRID       = 2
 
+  mc.CHANNEL_NUM = 3
+  mc.IMAGE_COLOR = _get_image_color(mc.CHANNEL_NUM)
+  mc.IMG_MEANS = _get_mean_image(mc.IMAGE_COLOR)
+
   return mc
 
 def set_anchors(mc):
@@ -78,3 +84,22 @@ def set_anchors(mc):
       (-1, 4)
   )
   return anchors
+
+
+def _get_mean_image(image_color):
+    image_dir = 'data/KITTI/training/image'
+    image_path_list = list(Path(image_dir).glob('*G' or '*g'))
+    assert(image_path_list), 'Cannot find images ends with *G under forlder {}'.format(image_dir)
+    sum_image = np.zeros_like(cv.imread(str(image_path_list[0]), image_color))
+    for image_path in image_path_list:
+        sum_image += cv.imread(str(image_path), image_color)
+    #if len(sum_image) < 3:
+    #    sum_image = np.expand_dims(sum_image, -1)
+    return sum_image / float(len(image_path_list))
+
+
+def _get_image_color(channel_num):
+    assert channel_num == 1 or 3, 'Unknown channel number {}'.channel_num
+    if channel_num == 1:
+        return cv.IMREAD_GRAYSCALE
+    return cv.IMREAD_COLOR

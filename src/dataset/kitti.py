@@ -2,13 +2,18 @@
 
 """Image data base class for kitti"""
 
-import cv2
-import os 
-import numpy as np
+import os
 import subprocess
+import sys
+from pathlib import Path
+from typing import List
+
+import cv2
+import numpy as np
 
 from dataset.imdb import imdb
-from utils.util import bbox_transform_inv, batch_iou
+from utils.util import batch_iou, bbox_transform_inv
+
 
 class kitti(imdb):
   def __init__(self, image_set, data_path, mc):
@@ -45,7 +50,7 @@ class kitti(imdb):
     return image_idx
 
   def _image_path_at(self, idx):
-    image_path = os.path.join(self._image_path, idx+'.png')
+    image_path = str(list(Path(self._image_path).glob(idx+'.*'))[0])
     assert os.path.exists(image_path), \
         'Image does not exist: {}'.format(image_path)
     return image_path

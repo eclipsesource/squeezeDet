@@ -79,7 +79,7 @@ class ModelSkeleton:
 
     # image batch input
     self.ph_image_input = tf.placeholder(
-        tf.float32, [mc.BATCH_SIZE, mc.IMAGE_HEIGHT, mc.IMAGE_WIDTH, 1],
+        tf.float32, [mc.BATCH_SIZE, mc.IMAGE_HEIGHT, mc.IMAGE_WIDTH, mc.CHANNEL_NUM],
         name='image_input'
     )
     # A tensor where an element is 1 if the corresponding box is "responsible"
@@ -106,7 +106,7 @@ class ModelSkeleton:
         capacity=mc.QUEUE_CAPACITY,
         dtypes=[tf.float32, tf.float32, tf.float32, 
                 tf.float32, tf.float32],
-        shapes=[[mc.IMAGE_HEIGHT, mc.IMAGE_WIDTH, 1],
+        shapes=[[mc.IMAGE_HEIGHT, mc.IMAGE_WIDTH, mc.CHANNEL_NUM],
                 [mc.ANCHORS, 1],
                 [mc.ANCHORS, 4],
                 [mc.ANCHORS, 4],
@@ -363,16 +363,10 @@ class ModelSkeleton:
   def _add_viz_graph(self, state):
     """Define the visualization operation."""
     mc = self.mc
-    if state == 'train':
-      self.image_to_show = tf.placeholder(
-          tf.float32, [None, mc.IMAGE_HEIGHT, mc.IMAGE_WIDTH, 3],
-          name='image_to_show'
-      )
-    else:
-      self.image_to_show = tf.placeholder(
-          tf.float32, [None, mc.IMAGE_HEIGHT, mc.IMAGE_WIDTH, 1],
-          name='image_to_show'
-      )
+    self.image_to_show = tf.placeholder(
+        tf.float32, [None, mc.IMAGE_HEIGHT, mc.IMAGE_WIDTH, mc.CHANNEL_NUM],
+        name='image_to_show'
+    )
     self.viz_op = tf.summary.image('sample_detection_results',
         self.image_to_show, collections='image_summary',
         max_outputs=mc.BATCH_SIZE)

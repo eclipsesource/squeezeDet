@@ -84,13 +84,17 @@ class imdb(object):
 
     images, scales = [], []
     for i in batch_idx:
-      im = np.expand_dims(cv2.imread(self._image_path_at(i), cv2.IMREAD_GRAYSCALE), -1)
+      # im = np.expand_dims(cv2.imread(self._image_path_at(i), cv2.IMREAD_GRAYSCALE), -1)
+      im = cv2.imread(self._image_path_at(i), mc.IMAGE_COLOR)
       im = im.astype(np.float32, copy=False)
-      im -= mc.GRAY_MEANS
-      orig_h, orig_w, _ = [float(v) for v in im.shape]
-      im = np.expand_dims(cv2.resize(im, (mc.IMAGE_WIDTH, mc.IMAGE_HEIGHT)), -1)
-      x_scale = mc.IMAGE_WIDTH/orig_w
-      y_scale = mc.IMAGE_HEIGHT/orig_h
+      im -= mc.IMG_MEANS
+      orig_size = [float(v) for v in im.shape]
+      #im = np.expand_dims(cv2.resize(im, (mc.IMAGE_WIDTH, mc.IMAGE_HEIGHT)), -1)
+      im = cv2.resize(im, (mc.IMAGE_WIDTH, mc.IMAGE_HEIGHT)).astype(np.float32, copy=False)
+      x_scale = mc.IMAGE_WIDTH/orig_size[1]
+      y_scale = mc.IMAGE_HEIGHT/orig_size[0]
+      if len(orig_size) is 2:
+        im = np.expand_dims(im, -1)
       images.append(im)
       scales.append((x_scale, y_scale))
 
@@ -140,13 +144,12 @@ class imdb(object):
 
     for idx in batch_idx:
       # load the image
-      if train:
-        im = np.expand_dims(cv2.imread(self._image_path_at(idx), cv2.IMREAD_GRAYSCALE), -1).astype(np.float32, copy=False)
-        im -= mc.GRAY_MEANS
-      else:
-        im =cv2.imread(self._image_path_at(idx)).astype(np.float32, copy=False)
-        im -= mc.BGR_MEANS
-      orig_h, orig_w, _ = [float(v) for v in im.shape]
+      #im = np.expand_dims(cv2.imread(self._image_path_at(idx), cv2.IMREAD_GRAYSCALE), -1).astype(np.float32, copy=False)
+      im = cv2.imread(self._image_path_at(idx), mc.IMAGE_COLOR)
+      im -= mc.IMG_MEANS
+      if im.shape == 2:
+        im = np.expand_dims(im, -1)
+      orig_h, orig_w = [float(v) for v in im.shape[:2]]
 
       # load annotations
       label_per_batch.append([b[4] for b in self._rois[idx][:]])
@@ -186,10 +189,9 @@ class imdb(object):
           gt_bbox[:, 0] = orig_w - 1 - gt_bbox[:, 0]
 
       # scale image
-      if train:
-        im = np.expand_dims(cv2.resize(im, (mc.IMAGE_WIDTH, mc.IMAGE_HEIGHT)), -1)
-      else:
-        im = cv2.resize(im, (mc.IMAGE_WIDTH, mc.IMAGE_HEIGHT))
+      im = cv2.resize(im, (mc.IMAGE_WIDTH, mc.IMAGE_HEIGHT))
+      if len(im.shape) is 2:
+        im = np.expand_dims(im)
       image_per_batch.append(im)
 
       # scale annotation

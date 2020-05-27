@@ -11,6 +11,7 @@ from datetime import datetime
 import os.path
 import sys
 import time
+from utils.util import *
 
 import numpy as np
 from six.moves import xrange
@@ -36,7 +37,7 @@ tf.app.flags.DEFINE_string('eval_dir', 'tmp/logs/eval',
                             """Directory where to write event logs """)
 tf.app.flags.DEFINE_string('checkpoint_path', 'tmp/logs/train',
                             """Path to the training checkpoint.""")
-tf.app.flags.DEFINE_integer('eval_interval_secs', 60 * 1,
+tf.app.flags.DEFINE_integer('eval_interval_secs', 10 * 1,
                              """How often to check if new cpt is saved.""")
 tf.app.flags.DEFINE_boolean('run_once', False,
                              """Whether to run eval only once.""")
@@ -104,11 +105,11 @@ def eval_once(
       _t['im_detect'].toc()
 
       _t['misc'].tic()
-      
-      for j in range(len(det_boxes)): # batch
+
+      for j in range(len(det_boxes)):  # batch
         # rescale
-        #det_boxes[j, :, 0::2] /= scales[j][0]
-        #det_boxes[j, :, 1::2] /= scales[j][1]
+        det_boxes[j, :, 0::2] /= scales[j][0]
+        det_boxes[j, :, 1::2] /= scales[j][1]
 
         det_bbox, score, det_class = model.filter_prediction(
             det_boxes[j], det_probs[j], det_class[j])

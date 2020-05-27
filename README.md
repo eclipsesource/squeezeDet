@@ -52,15 +52,15 @@ The following instructions are written for Linux-based distros.
   ```
 
 
-- Now we can run the demo. To detect the sample image `$SQDT_ROOT/data/sample.png`,
+- Now we can run the demo. To detect the sample image `$SQDT_ROOT/data/sample.image_format`,
 
   ```Shell
   cd $SQDT_ROOT/
   python ./src/demo.py
   ```
-  If the installation is correct, the detector should generate this image: ![alt text](https://github.com/BichenWuUCB/squeezeDet/blob/master/README/out_sample.png)
+  If the installation is correct, the detector should generate this image: ![alt text](https://github.com/BichenWuUCB/squeezeDet/blob/master/README/out_sample.image_format)
 
-  To detect other image(s), use the flag `--input_path=./data/*.png` to point to input image(s). Input image(s) will be scaled to the resolution of 1242x375 (KITTI image resolution), so it works best when original resolution is close to that.  
+  To detect other image(s), use the flag `--input_path=./data/*.image_format` to point to input image(s). Input image(s) will be scaled to the resolution of 1242x375 (KITTI image resolution), so it works best when original resolution is close to that.  
 
 - SqueezeDet is a real-time object detector, which can be used to detect videos. The video demo will be released later.
 
@@ -73,7 +73,8 @@ The following instructions are written for Linux-based distros.
   cd $SQDT_ROOT/data/KITTI/
   mkdir ImageSets
   cd ./ImageSets
-  ls ../training/image_2/ | grep ".png" | sed s/.png// > trainval.txt
+  #ls ../training/image/ | grep ".JPG" | sed s/.JPG// > trainval.txt
+  find ../training/image/ -name "*G" -o -name "*g" | xargs -n 1 basename | cut -d '.' -f1 > trainval.txt
   ```
   `trainval.txt` contains indices to all the images in the training data. In our experiments, we randomly split half of indices in `trainval.txt` into `train.txt` to form a training set and rest of them into `val.txt` to form a validation set. For your convenience, we provide a script to split the train-val set automatically. Simply run
   
@@ -89,10 +90,10 @@ The following instructions are written for Linux-based distros.
   ```Shell
   $SQDT_ROOT/data/KITTI/
                     |->training/
-                    |     |-> image_2/00****.png
-                    |     L-> label_2/00****.txt
+                    |     |-> image/00****.image_format
+                    |     L-> label/00****.txt
                     |->testing/
-                    |     L-> image_2/00****.png
+                    |     L-> image/00****.image_format
                     L->ImageSets/
                           |-> trainval.txt
                           |-> train.txt
@@ -145,6 +146,6 @@ The following instructions are written for Linux-based distros.
   ```
   Here, `$LOG_DIR` is the directory where your training and evaluation threads dump log events, which should be the same as `-train_dir` and `-eval_dir` specified in `train.sh` and `eval.sh`. From tensorboard, you should be able to see a lot of information including loss, average precision, error analysis, example detections, model visualization, etc.
 
-  ![alt text](https://github.com/BichenWuUCB/squeezeDet/blob/master/README/detection_analysis.png)
-  ![alt text](https://github.com/BichenWuUCB/squeezeDet/blob/master/README/graph.png)
-  ![alt text](https://github.com/BichenWuUCB/squeezeDet/blob/master/README/det_img.png)
+  ![alt text](https://github.com/BichenWuUCB/squeezeDet/blob/master/README/detection_analysis.image_format)
+  ![alt text](https://github.com/BichenWuUCB/squeezeDet/blob/master/README/graph.image_format)
+  ![alt text](https://github.com/BichenWuUCB/squeezeDet/blob/master/README/det_img.image_format)
