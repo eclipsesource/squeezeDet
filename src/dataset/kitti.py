@@ -158,7 +158,7 @@ class kitti(imdb):
 
     return aps, names
 
-  def do_detection_analysis_in_eval(self, eval_dir, global_step):
+  def do_detection_analysis_in_eval(self, eval_dir, global_step, viz=False):
     det_file_dir = os.path.join(
         eval_dir, 'detection_files_{:s}'.format(global_step), 'data')
     det_error_dir = os.path.join(
@@ -169,15 +169,24 @@ class kitti(imdb):
     det_error_file = os.path.join(det_error_dir, 'det_error_file.txt')
 
     stats = self.analyze_detections(det_file_dir, det_error_file)
-    ims = self.visualize_detections(
-        image_dir=self._image_path,
-        image_format='.png',
-        det_error_file=det_error_file,
-        output_image_dir=det_error_dir,
-        num_det_per_type=10
-    )
+    if viz == 'all':
+      self.visualize_detections(
+            image_dir=self._image_path,
+            image_format='.JPG',
+            det_error_file=os.path.join(det_file_dir, 'all_detections'+'.txt'),
+            output_image_dir=det_error_dir,
+            num_det_per_type=10
+        )
+    if viz == 'error':
+      self.visualize_detections(
+          image_dir=self._image_path,
+          image_format='.JPG',
+          det_error_file=det_error_file,
+          output_image_dir=det_error_dir,
+          num_det_per_type=10
+      )
 
-    return stats, ims
+    #return stats
 
   def analyze_detections(self, detection_file_dir, det_error_file):
     def _save_detection(f, idx, error_type, det, score):
@@ -186,7 +195,7 @@ class kitti(imdb):
               idx, error_type,
               det[0]-det[2]/2., det[1]-det[3]/2.,
               det[0]+det[2]/2., det[1]+det[3]/2.,
-              self._classes[int(det[4])], 
+              self._classes[int(det[4])],
               score
           )
       )
@@ -222,6 +231,11 @@ class kitti(imdb):
     num_bg_error = 0.
     num_repeated_error = 0.
     num_detected_obj = 0.
+    with open(os.path.join(detection_file_dir, 'all_detections'+'.txt'), 'w') as f:
+      for idx in self._image_idx:
+        det_bboxes = self._det_rois[idx]
+        for i, det in enumerate(det_bboxes):
+          _save_detection(f, idx, 'all', det, det[5])
 
     with open(det_error_file, 'w') as f:
       for idx in self._image_idx:

@@ -73,7 +73,7 @@ def _draw_box(im, box_list, label_list, color=(0,255,0), cdict=None, form='cente
     cv2.rectangle(im, (xmin, ymin), (xmax, ymax), c, 1)
     # draw label
     font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(im, label, (xmin, ymax), font, 0.3, c, 1)
+    cv2.putText(im, label, (xmin, ymax), font, 0.5, c, 1)
 
 def _viz_prediction_result(model, images, bboxes, labels, batch_det_bbox,
                            batch_det_class, batch_det_prob):
@@ -286,14 +286,10 @@ def train():
         _, loss_value, summary_str, det_boxes, det_probs, det_class, \
             conf_loss, bbox_loss, class_loss = sess.run(
                 op_list, feed_dict=feed_dict)
-        viz_feed_dict, viz_image_per_batch, viz_label_per_batch, viz_bbox_per_batch = \
-            _load_data(load_to_placeholder=False, train=False)
-        _viz_prediction_result(
-            model, viz_image_per_batch, viz_bbox_per_batch, viz_label_per_batch, det_boxes,
-            det_class, det_probs)
-        viz_image_per_batch = bgr_to_rgb(viz_image_per_batch)
+        _viz_prediction_result(model, image_per_batch, bbox_per_batch, label_per_batch, det_boxes,det_class, det_probs)
+        image_per_batch = bgr_to_rgb(image_per_batch)
         viz_summary = sess.run(
-            model.viz_op, feed_dict={model.image_to_show: viz_image_per_batch})
+            model.viz_op, feed_dict={model.image_to_show: image_per_batch})
 
         summary_writer.add_summary(summary_str, step)
         summary_writer.add_summary(viz_summary, step)

@@ -43,13 +43,14 @@ tf.app.flags.DEFINE_boolean('run_once', False,
 tf.app.flags.DEFINE_string('net', 'squeezeDet+',
                            """Neural net architecture.""")
 tf.app.flags.DEFINE_string('gpu', '0', """gpu id.""")
+tf.app.flags.DEFINE_string('viz_eval', 'error', """viz_eval or not.""")
 
 
-def _draw_box(im, box_list, label, color=(0,255,0), cdict=None, form='center'):
+def _draw_box(im, box_list, label_list, color=(0,255,0), cdict=None, form='center'):
   assert form == 'center' or form == 'diagonal', \
       'bounding box format not accepted: {}.'.format(form)
 
-  for bbox in box_list:
+  for bbox, label in zip(box_list, label_list):
 
     if form == 'center':
       bbox = bbox_transform(bbox)
@@ -66,7 +67,7 @@ def _draw_box(im, box_list, label, color=(0,255,0), cdict=None, form='center'):
     cv2.rectangle(im, (xmin, ymin), (xmax, ymax), c, 1)
     # draw label
     font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(im, label, (xmin, ymax), font, 0.3, c, 1)
+    cv2.putText(im, label, (xmin, ymax), font, 0.5, c, 1)
 
 
 def eval_once(
@@ -92,7 +93,7 @@ def eval_once(
     num_detection = 0.0
     for i in xrange(num_images):
       _t['im_read'].tic()
-      images, scales = imdb.read_image_batch(shuffle=False)
+      images, scales = imdb.read_image_batch(shuffle=True)
       _t['im_read'].toc()
 
       _t['im_detect'].tic()
@@ -151,17 +152,25 @@ def eval_once(
         num_detection/num_images
 
     print ('Analyzing detections...')
-    stats, ims = imdb.do_detection_analysis_in_eval(
-        FLAGS.eval_dir, global_step)
+    imdb.do_detection_analysis_in_eval(FLAGS.eval_dir, global_step, FLAGS.viz_eval)
 
     eval_summary_str = sess.run(eval_summary_ops, feed_dict=feed_dict)
     for sum_str in eval_summary_str:
       summary_writer.add_summary(sum_str, global_step)
-    
-    _draw_box(*images, det_bbox, model.mc.CLASS_NAMES[det_class[0]], (0, 255, 0))
 
+    keep_idx    = [idx for idx in range(len(score)) \
+                      if score[idx] > model.mc.PLOT_PROB_THRESH]
+    det_bbox    = [det_bbox[idx] for idx in keep_idx]
+    det_prob    = [score[idx] for idx in keep_idx]
+    det_class   = [det_class[idx] for idx in keep_idx]
+    for i in range(len(det_bbox)):
+      det_bbox[i][0::2] *= scales[0][0]
+      det_bbox[i][1::2] *= scales[0][1]
+    _draw_box(images[0], det_bbox, [model.mc.CLASS_NAMES[idx]+': (%.2f)'% prob \
+            for idx, prob in zip(det_class, det_prob)], (0, 0, 255))
+    viz_image_per_batch = bgr_to_rgb(images)
     viz_summary = sess.run(
-        model.viz_op, feed_dict={model.image_to_show: images})
+        model.viz_op, feed_dict={model.image_to_show: viz_image_per_batch})
 
     summary_writer.add_summary(viz_summary, global_step)
     summary_writer.flush()
