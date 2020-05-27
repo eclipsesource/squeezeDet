@@ -21,3 +21,5 @@ events*
 data/KITTI/ImageSets/train.txt
 data/KITTI/ImageSets/trainval.txt
 data/KITTI/ImageSets/val.txt
+tmp/freeze.pb
+src/try.py
