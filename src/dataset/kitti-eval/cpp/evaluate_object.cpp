@@ -601,8 +601,8 @@ void saveAndPlotPlots(string dir_name,string file_name,string obj_type,vector<do
 
     // save gnuplot instructions
     if (j==0) {
-      fprintf(fp,"set term png size 450,315 font \"Helvetica\" 11\n");
-      fprintf(fp,"set output \"%s.png\"\n",file_name.c_str());
+      fprintf(fp,"set term JPG size 450,315 font \"Helvetica\" 11\n");
+      fprintf(fp,"set output \"%s.JPG\"\n",file_name.c_str());
     } else {
       fprintf(fp,"set term postscript eps enhanced color font \"Helvetica\" 20\n");
       fprintf(fp,"set output \"%s.eps\"\n",file_name.c_str());
@@ -812,7 +812,7 @@ int32_t main (int32_t argc,char *argv[]) {
 
   // read arguments
   string const kitti_dir          = argv[1];
-  string const gt_dir             = ospj( kitti_dir, "label_2" ); // FIXME_MWM: should be part of input? configurable?
+  string const gt_dir             = ospj( kitti_dir, "label" ); // FIXME_MWM: should be part of input? configurable?
   string const image_set_filename = argv[2];
   string const result_dir         = argv[3];
   int32_t const N_TESTIMAGES      = atoi(argv[4]);
