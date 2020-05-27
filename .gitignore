@@ -14,3 +14,10 @@ checkpoint*
 events*
 .vscode/launch.json
 .vscode/settings.json
+*pdf
+*eps
+*.jpg
+*tflite
+data/KITTI/ImageSets/train.txt
+data/KITTI/ImageSets/trainval.txt
+data/KITTI/ImageSets/val.txt
