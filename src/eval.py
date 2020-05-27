@@ -73,9 +73,10 @@ def _draw_box(im, box_list, label_list, color=(0,255,0), cdict=None, form='cente
 def eval_once(
     saver, ckpt_path, summary_writer, eval_summary_ops, eval_summary_phs, imdb,
     model):
+  gpu_config = tf.ConfigProto(allow_soft_placement=True)
+  gpu_config.gpu_options.allow_growth = True
 
-  with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
-
+  with tf.Session(config=gpu_config) as sess:
     # Restores from checkpoint
     saver.restore(sess, ckpt_path)
     # Assuming model_checkpoint_path looks something like:

@@ -108,7 +108,8 @@ def train():
   assert FLAGS.dataset == 'KITTI', \
       'Currently only support KITTI dataset format'
 
-  #os.environ['CUDA_VISIBLE_DEVICES'] = FLAGS.gpu
+  os.environ['CUDA_VISIBLE_DEVICES'] = FLAGS.gpu
+  #config.gpu_options.allow_growth = True
 
   with tf.Graph().as_default():
 
@@ -239,8 +240,9 @@ def train():
           print ("Finished enqueue")
       except Exception as e:
         coord.request_stop(e)
-
-    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True))
+    gpu_config = tf.ConfigProto(allow_soft_placement=True)
+    gpu_config.gpu_options.allow_growth = True
+    sess = tf.Session(config=gpu_config)
 
     saver = tf.train.Saver(tf.global_variables())
     summary_op = tf.summary.merge_all()
