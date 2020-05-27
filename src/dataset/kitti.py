@@ -85,6 +85,10 @@ class kitti(imdb):
 
         if self.mc.EXCLUDE_HARD_EXAMPLES and _get_obj_level(obj) > 3:
           continue
+        im = np.expand_dims(cv2.imread(self._image_path_at(index), cv2.IMREAD_GRAYSCALE), -1)
+        orig_h, orig_w = [float(v) for v in im.shape[:2]]
+        self.x_scale = self.mc.IMAGE_WIDTH/orig_w
+        self.y_scale = self.mc.IMAGE_HEIGHT/orig_h
         xmin = float(obj[4])
         ymin = float(obj[5])
         xmax = float(obj[6])

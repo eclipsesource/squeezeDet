@@ -72,7 +72,8 @@ def base_model_config(dataset='PASCAL_VOC'):
   #cfg.BGR_MEANS = np.array([[[103.939, 116.779, 123.68]]])
   cfg.BGR_MEANS = np.array([[[0, 0, 0]]])
 
-  cfg.GRAY_MEANS = np.array([[[0]]])
+  #cfg.GRAY_MEANS = np.array([[[0]]])
+
   # loss coefficient for confidence regression
   cfg.LOSS_COEF_CONF = 1.0
 
