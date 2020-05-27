@@ -35,10 +35,9 @@ def eval_frozen_graph(image):
 if __name__ == '__main__':
     with tf.gfile.GFile("tmp/freeze.pb", 'rb') as f:
         mc = kitti_squeezeDetPlus_config()
+        mc.BATCH_SIZE = 1 # TODO(bichen): allow batch size > 1
         imdb = kitti(FLAGS.image_set, FLAGS.data_path, mc)
         images, scales = imdb.read_image_batch(shuffle=False)
-        image = images[0][np.newaxis, ::] # numpy array
-        image = np.tile(image, [4, 1,1,1])
         #image = tf.convert_to_tensor(image)
         graph_def = tf.GraphDef()
         graph_def.ParseFromString(f.read())
@@ -64,7 +63,7 @@ if __name__ == '__main__':
 
             det_probs, det_boxes, det_class = sess.run(
             ["out_det_probs:0", "out_det_boxes:0", "out_det_class:0"],
-            feed_dict={'image_input:0':image})
+            feed_dict={'image_input:0':images})
             print(det_probs.shape)
             print(det_boxes.shape)
             print(det_class.shape)
