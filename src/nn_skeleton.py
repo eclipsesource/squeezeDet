@@ -713,11 +713,10 @@ class ModelSkeleton:
       probs = probs[order]
       boxes = boxes[order]
       cls_idx = cls_idx[order]
-    else:
-      filtered_idx = np.nonzero(probs>mc.PROB_THRESH)[0]
-      probs = probs[filtered_idx]
-      boxes = boxes[filtered_idx]
-      cls_idx = cls_idx[filtered_idx]
+    filtered_idx = np.nonzero(probs>mc.PROB_THRESH)[0]
+    probs = probs[filtered_idx]
+    boxes = boxes[filtered_idx]
+    cls_idx = cls_idx[filtered_idx]
 
     final_boxes = []
     final_probs = []

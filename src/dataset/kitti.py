@@ -294,21 +294,22 @@ class kitti(imdb):
     print ('    Number of detections: {}'.format(num_dets))
     print ('    Number of objects: {}'.format(num_objs))
     print ('    Percentage of correct detections: {}'.format(
-      num_correct/num_dets))
+      num_correct/(num_dets+sys.float_info.epsilon)))
     print ('    Percentage of localization error: {}'.format(
-      num_loc_error/num_dets))
+      num_loc_error/(num_dets+sys.float_info.epsilon)))
     print ('    Percentage of classification error: {}'.format(
-      num_cls_error/num_dets))
+      num_cls_error/(num_dets+sys.float_info.epsilon)))
     print ('    Percentage of background error: {}'.format(
-      num_bg_error/num_dets))
+      num_bg_error/(num_dets+sys.float_info.epsilon)))
     print ('    Percentage of repeated detections: {}'.format(
-      num_repeated_error/num_dets))
+      num_repeated_error/(num_dets+sys.float_info.epsilon)))
     print ('    Recall: {}'.format(
       num_detected_obj/num_objs))
 
     out = {}
     out['num of detections'] = num_dets
     out['num of objects'] = num_objs
+    out['num of det wrong'] = num_cls_error
     out['% correct detections'] = num_correct/num_dets
     out['% localization error'] = num_loc_error/num_dets
     out['% classification error'] = num_cls_error/num_dets

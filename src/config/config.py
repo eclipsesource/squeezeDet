@@ -24,7 +24,7 @@ def base_model_config(dataset='PASCAL_VOC'):
                        'sofa', 'train', 'tvmonitor')
   elif cfg.DATASET == 'KITTI':
     #cfg.CLASS_NAMES = ('car', 'pedestrian', 'cyclist')
-    cfg.CLASS_NAMES = (['checkbox', 'yes', 'no', 'empty', 'both'])
+    cfg.CLASS_NAMES = (['yes', 'no', 'empty', 'both'])
   # number of categories to classify
   cfg.CLASSES = len(cfg.CLASS_NAMES)    
 
