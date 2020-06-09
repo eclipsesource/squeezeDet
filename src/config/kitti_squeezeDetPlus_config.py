@@ -30,9 +30,9 @@ def kitti_squeezeDetPlus_config():
 
 
 
-  mc.PLOT_PROB_THRESH      = 0.8
+  mc.PLOT_PROB_THRESH      = 0.6
   mc.NMS_THRESH            = .3 # bboxes are considered as overlapped if their iou is larger than this value
-  mc.PROB_THRESH           = 0.8 # This will influece at the start but plays trival roles after some epochs, only visulization
+  mc.PROB_THRESH           = 0.6 # This will influece at the start but plays trival roles after some epochs, only visulization
   mc.TOP_N_DETECTION       = 100 # only influence visulization
 
   mc.DATA_AUGMENTATION     = False
@@ -90,7 +90,7 @@ def set_anchors(mc):
 
 
 def _get_mean_image(image_color):
-    image_dir = 'data/KITTI/training/image'
+    image_dir = '../data/KITTI/training/image'
     image_path_list = list(Path(image_dir).glob('*G' or '*g'))
     assert(image_path_list), 'Cannot find images ends with *G under forlder {}'.format(image_dir)
     sum_image = np.zeros_like(cv.imread(str(image_path_list[0]), image_color)).astype(np.float32)
