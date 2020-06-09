@@ -93,10 +93,10 @@ def _get_mean_image(image_color):
     image_dir = 'data/KITTI/training/image'
     image_path_list = list(Path(image_dir).glob('*G' or '*g'))
     assert(image_path_list), 'Cannot find images ends with *G under forlder {}'.format(image_dir)
-    sum_image = np.zeros_like(cv.imread(str(image_path_list[0]), image_color))
+    sum_image = np.zeros_like(cv.imread(str(image_path_list[0]), image_color)).astype(np.float32)
     for image_path in image_path_list:
         sum_image += cv.imread(str(image_path), image_color)
-    #if len(sum_image) < 3:
+    # if len(sum_image) < 3:
     #    sum_image = np.expand_dims(sum_image, -1)
     return sum_image / float(len(image_path_list))
 
