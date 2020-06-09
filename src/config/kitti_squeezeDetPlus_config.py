@@ -14,7 +14,7 @@ def kitti_squeezeDetPlus_config():
 
   mc.IMAGE_WIDTH           = 1040#1632#608#1216
   mc.IMAGE_HEIGHT          = 1632#2432#400#816
-  mc.BATCH_SIZE            = 3
+  mc.BATCH_SIZE            = 1
 
   mc.WEIGHT_DECAY          = 0.0001
   mc.LEARNING_RATE         = 0.001
@@ -46,7 +46,7 @@ def kitti_squeezeDetPlus_config():
 
   mc.CHANNEL_NUM = 3
   mc.IMAGE_COLOR = _get_image_color(mc.CHANNEL_NUM)
-  mc.IMG_MEANS = _get_mean_image(mc.IMAGE_COLOR)
+  mc.IMG_MEANS = _get_mean_image(mc.IMAGE_COLOR).astype(np.uint8)
 
   return mc
 

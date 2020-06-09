@@ -26,7 +26,7 @@ from pathlib import Path
 
 
 FLAGS = tf.app.flags.FLAGS
-tf.app.flags.DEFINE_string('checkpoint_path', 'tmp/logs/train/model.ckpt-220', """Path to the selected checkpoint.""")
+tf.app.flags.DEFINE_string('checkpoint_path', 'tmp/logs/train/model.ckpt-80', """Path to the selected checkpoint.""")
 tf.app.flags.DEFINE_string('frozen_graph_name', 'freeze.pb', """Path to the frozen graph.""")
 tf.app.flags.DEFINE_string('tflite_name', 'mobile_model.tflite', """Path to the tflite model.""")
 tf.app.flags.DEFINE_string('data_path', 'data/KITTI', """Root directory of data""")
