@@ -37,7 +37,7 @@ class SqueezeDetPlus(ModelSkeleton):
           'Cannot find pretrained model at the given path:' \
           '  {}'.format(mc.PRETRAINED_MODEL_PATH)
       self.caffemodel_weight = joblib.load(mc.PRETRAINED_MODEL_PATH)
-    conv1 = self._conv_layer('conv1', self.ph_image_input, filters=96, size=7, stride=2, padding='SAME', freeze=True)
+    conv1 = self._conv_layer('conv1', self.image_input, filters=96, size=7, stride=2, padding='SAME', freeze=True)
     pool1 = self._pooling_layer('pool1', conv1, size=3, stride=2, padding='SAME')
     fire2 = self._fire_layer('fire2', pool1, s1x1=96, e1x1=64, e3x3=64, freeze=False)
     fire3 = self._fire_layer('fire3', fire2, s1x1=96, e1x1=64, e3x3=64, freeze=False)
