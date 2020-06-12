@@ -80,6 +80,8 @@ def _viz_prediction_result(model, images, bboxes, labels, batch_det_bbox,
   mc = model.mc
 
   for i in range(len(images)):
+    image = images[i] + mc.IMG_MEAN
+    image = ((image - np.min(image)) / (np.max(image)-np.min(image)) * 255).astype(np.uint8)
     # draw ground truth
     _draw_box(
         images[i], bboxes[i],

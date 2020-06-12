@@ -90,15 +90,11 @@ def set_anchors(mc):
 
 
 def _get_mean_image(image_color):
-    image_dir = '../data/KITTI/training/image'
+    image_dir = './data/KITTI/training/image'
     image_path_list = list(Path(image_dir).glob('*G' or '*g'))
     assert(image_path_list), 'Cannot find images ends with *G under forlder {}'.format(image_dir)
-    sum_image = np.zeros_like(cv.imread(str(image_path_list[0]), image_color)).astype(np.float32)
-    for image_path in image_path_list:
-        sum_image += cv.imread(str(image_path), image_color)
-    # if len(sum_image) < 3:
-    #    sum_image = np.expand_dims(sum_image, -1)
-    return sum_image / float(len(image_path_list))
+    sum_value_per_channel = [np.sum(cv.imread(str(image_path)), axis=(0,1)) for image_path in image_path_list]
+    return [sum_value / float(len(image_path_list)) for sum_value in sum_value_per_channel]
 
 
 def _get_image_color(channel_num):
