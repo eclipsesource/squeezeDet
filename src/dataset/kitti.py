@@ -178,24 +178,6 @@ class kitti(imdb):
     det_error_file = os.path.join(det_error_dir, 'det_error_file.txt')
 
     stats = self.analyze_detections(det_file_dir, det_error_file)
-    if viz == 'all':
-      self.visualize_detections(
-            image_dir=self._image_path,
-            image_format='.JPG',
-            det_error_file=os.path.join(det_file_dir, 'all_detections'+'.txt'),
-            output_image_dir=det_error_dir,
-            num_det_per_type=10
-        )
-    if viz == 'error':
-      self.visualize_detections(
-          image_dir=self._image_path,
-          image_format='.JPG',
-          det_error_file=det_error_file,
-          output_image_dir=det_error_dir,
-          num_det_per_type=10
-      )
-
-    #return stats
 
   def analyze_detections(self, detection_file_dir, det_error_file):
     def _save_detection(f, idx, error_type, det, score):
