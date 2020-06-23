@@ -74,17 +74,16 @@ def _draw_box(im, box_list, label_list, color=(0,255,0), cdict=None, form='cente
     # draw label
     font = cv2.FONT_HERSHEY_SIMPLEX
     cv2.putText(im, label, (xmin, ymax), font, 0.5, c, 1)
+  return im
 
 def _viz_prediction_result(model, images, bboxes, labels, batch_det_bbox,
                            batch_det_class, batch_det_prob):
   mc = model.mc
 
   for i in range(len(images)):
-    image = images[i] + mc.IMG_MEAN
-    image = ((image - np.min(image)) / (np.max(image)-np.min(image)) * 255).astype(np.uint8)
-    # draw ground truth
-    _draw_box(
-        images[i], bboxes[i],
+    image = images[i] + mc.IMG_MEANS
+    image = _draw_box(
+        image, bboxes[i],
         [mc.CLASS_NAMES[idx] for idx in labels[i]],
         (0, 255, 0))
 
@@ -98,8 +97,8 @@ def _viz_prediction_result(model, images, bboxes, labels, batch_det_bbox,
     det_prob    = [det_prob[idx] for idx in keep_idx]
     det_class   = [det_class[idx] for idx in keep_idx]
 
-    _draw_box(
-        images[i], det_bbox,
+    images[i] = _draw_box(
+        image, det_bbox,
         [mc.CLASS_NAMES[idx]+': (%.2f)'% prob \
             for idx, prob in zip(det_class, det_prob)],
         (0, 0, 255))

@@ -86,8 +86,6 @@ class imdb(object):
     for i in batch_idx:
       # im = np.expand_dims(cv2.imread(self._image_path_at(i), cv2.IMREAD_GRAYSCALE), -1)
       im = cv2.imread(self._image_path_at(i), mc.IMAGE_COLOR)
-      im = im.astype(np.float32, copy=False)
-      im -= mc.IMG_MEANS
       orig_size = [float(v) for v in im.shape]
       #im = np.expand_dims(cv2.resize(im, (mc.IMAGE_WIDTH, mc.IMAGE_HEIGHT)), -1)
       im = cv2.resize(im, (mc.IMAGE_WIDTH, mc.IMAGE_HEIGHT)).astype(np.float32, copy=False)
@@ -95,9 +93,9 @@ class imdb(object):
       y_scale = mc.IMAGE_HEIGHT/orig_size[0]
       if len(orig_size) is 2:
         im = np.expand_dims(im, -1)
+      im -= mc.IMG_MEANS
       images.append(im)
       scales.append((x_scale, y_scale))
-
     return images, scales
 
   def read_batch(self, shuffle=True, train=True):
@@ -145,7 +143,7 @@ class imdb(object):
     for idx in batch_idx:
       # load the image
       #im = np.expand_dims(cv2.imread(self._image_path_at(idx), cv2.IMREAD_GRAYSCALE), -1).astype(np.float32, copy=False)
-      im = cv2.imread(self._image_path_at(idx), mc.IMAGE_COLOR)
+      im = cv2.imread(self._image_path_at(idx), mc.IMAGE_COLOR).astype(np.float32)
       im -= mc.IMG_MEANS
       if im.shape == 2:
         im = np.expand_dims(im, -1)

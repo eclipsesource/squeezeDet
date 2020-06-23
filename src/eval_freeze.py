@@ -80,7 +80,8 @@ def _convert_pb_to_tflite(
             )
     tflite_model = converter.convert()
     open(str(Path(frozen_graph_path).parent.joinpath('tflite_model.tflite')), "wb").write(tflite_model)
-    converter.optimizations = [tf.lite.Optimize.OPTIMIZE_FOR_SIZE]
+    #converter.optimizations = [tf.lite.Optimize.OPTIMIZE_FOR_SIZE]
+    converter.post_training_quantize=True
     tflite_quant_model = converter.convert()
     open(str(Path(frozen_graph_path).parent.joinpath('tflite_quant_model.tflite')), "wb").write(tflite_quant_model)
 

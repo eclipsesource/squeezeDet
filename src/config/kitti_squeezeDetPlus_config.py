@@ -93,8 +93,9 @@ def _get_mean_image(image_color):
     image_dir = './data/KITTI/training/image'
     image_path_list = list(Path(image_dir).glob('*G' or '*g'))
     assert(image_path_list), 'Cannot find images ends with *G under forlder {}'.format(image_dir)
-    sum_value_per_channel = [np.sum(cv.imread(str(image_path)), axis=(0,1)) for image_path in image_path_list]
-    return [sum_value / float(len(image_path_list)) for sum_value in sum_value_per_channel]
+    mean_value_per_channel_list = [np.mean(cv.imread(str(image_path)), axis=(0, 1)) for image_path in image_path_list]
+    mean_value_per_channel = np.mean(np.array(mean_value_per_channel_list), axis=0)
+    return mean_value_per_channel.astype(np.float32)
 
 
 def _get_image_color(channel_num):

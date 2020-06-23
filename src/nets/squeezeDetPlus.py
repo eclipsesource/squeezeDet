@@ -55,8 +55,7 @@ class SqueezeDetPlus(ModelSkeleton):
     dropout11 = tf.nn.dropout(fire8, rate = 1-self.keep_prob, name='drop11')
     self.preds = self._conv_layer('conv12', dropout11, filters=num_output, size=3, stride=1, padding='SAME', xavier=False, relu=False, stddev=0.0001)
 
-  def _fire_layer(self, layer_name, inputs, s1x1, e1x1, e3x3, stddev=0.01,
-      freeze=False):
+  def _fire_layer(self, layer_name, inputs, s1x1, e1x1, e3x3, stddev=0.01, freeze=False):
     """Fire layer constructor.
 
     Args:
