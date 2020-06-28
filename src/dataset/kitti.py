@@ -76,6 +76,7 @@ class kitti(imdb):
         lines = f.readlines()
       f.close()
       bboxes = []
+      im = np.expand_dims(cv2.imread(self._image_path_at(index), cv2.IMREAD_GRAYSCALE), -1)
       for line in lines:
         obj = line.strip().split(' ')
         try:
@@ -84,8 +85,7 @@ class kitti(imdb):
           continue
 
         if self.mc.EXCLUDE_HARD_EXAMPLES and _get_obj_level(obj) > 3:
-          continue
-        im = np.expand_dims(cv2.imread(self._image_path_at(index), cv2.IMREAD_GRAYSCALE), -1)
+          continue  
         orig_h, orig_w = [float(v) for v in im.shape[:2]]
         self.x_scale = self.mc.IMAGE_WIDTH/orig_w
         self.y_scale = self.mc.IMAGE_HEIGHT/orig_h

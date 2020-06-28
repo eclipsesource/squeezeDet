@@ -721,7 +721,18 @@ class ModelSkeleton:
     final_boxes = []
     final_probs = []
     final_cls_idx = []
-
+    
+    #idx_per_class = [i for i in range(len(probs))]
+    '''
+    keep = util.nms(boxes, probs, mc.NMS_THRESH)
+    for i in range(len(keep)):
+      if keep[i]:
+        final_boxes.append(boxes[i])
+        final_probs.append(probs[i])
+        final_cls_idx.append(cls_idx[i])
+    return final_boxes, final_probs, final_cls_idx
+    
+    '''
     for c in range(mc.CLASSES):
       idx_per_class = [i for i in range(len(probs)) if cls_idx[i] == c]
       keep = util.nms(boxes[idx_per_class], probs[idx_per_class], mc.NMS_THRESH)
@@ -731,6 +742,7 @@ class ModelSkeleton:
           final_probs.append(probs[idx_per_class[i]])
           final_cls_idx.append(c)
     return final_boxes, final_probs, final_cls_idx
+    
 
   def _activation_summary(self, x, layer_name):
     """Helper to create summaries for activations.

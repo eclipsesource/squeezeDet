@@ -12,27 +12,27 @@ def kitti_squeezeDetPlus_config():
   """Specify the parameters to tune below."""
   mc                       = base_model_config('KITTI')
 
-  mc.IMAGE_WIDTH           = 1040#1632#608#1216
-  mc.IMAGE_HEIGHT          = 1632#2432#400#816
-  mc.BATCH_SIZE            = 3
+  mc.IMAGE_WIDTH           = 152#1632#608#1216
+  mc.IMAGE_HEIGHT          = 1112#2432#400#816
+  mc.BATCH_SIZE            = 16
 
   mc.WEIGHT_DECAY          = 0.0001
-  mc.LEARNING_RATE         = 0.001
-  mc.DECAY_STEPS           = 10000
+  mc.LEARNING_RATE         = 0.01
+  mc.DECAY_STEPS           = 300
   mc.MAX_GRAD_NORM         = 1.0
   mc.MOMENTUM              = 0.9
   mc.LR_DECAY_FACTOR       = 0.5
 
   mc.LOSS_COEF_BBOX        = 5.0
   mc.LOSS_COEF_CONF_POS    = 75.0
-  mc.LOSS_COEF_CONF_NEG    = 100.0
+  mc.LOSS_COEF_CONF_NEG    = 50.0
   mc.LOSS_COEF_CLASS       = 1.0
 
 
 
-  mc.PLOT_PROB_THRESH      = 0.6
+  mc.PLOT_PROB_THRESH      = 0.1
   mc.NMS_THRESH            = .3 # bboxes are considered as overlapped if their iou is larger than this value
-  mc.PROB_THRESH           = 0.6 # This will influece at the start but plays trival roles after some epochs, only visulization
+  mc.PROB_THRESH           = 0.1 # This will influece at the start but plays trival roles after some epochs, only visulization
   mc.TOP_N_DETECTION       = 100 # only influence visulization
 
   mc.DATA_AUGMENTATION     = False
@@ -42,7 +42,7 @@ def kitti_squeezeDetPlus_config():
 
   mc.ANCHOR_BOX            = set_anchors(mc)
   mc.ANCHORS               = len(mc.ANCHOR_BOX)
-  mc.ANCHOR_PER_GRID       = 2
+  mc.ANCHOR_PER_GRID       = 3
 
   mc.CHANNEL_NUM = 3
   mc.IMAGE_COLOR = _get_image_color(mc.CHANNEL_NUM)
@@ -53,13 +53,13 @@ def kitti_squeezeDetPlus_config():
 
 
 def set_anchors(mc):
-  H, W, B = 204, 130, 2#152, 102, 2#25, 38, 2#51, 76, 2
+  H, W, B = 139, 19, 3#152, 102, 2#25, 38, 2#51, 76, 2
   anchor_shapes = np.reshape(
       [np.array(
           #[[  300.,  60.],[  300.,  100.]])] * H * W,_viz_prediction_result
           #[[  120.,  30.],[  120.,  50.]])] * H * W,
           #[[  140.,  30.],[140., 50.], [140., 80.]])] * H * W,
-          [[  70.,  10.], [70., 40.]])] * H * W,
+          [[  120.,  20.], [120., 40.], [120., 80.]])] * H * W,
       (H, W, B, 2)
   ) # 51,76,1,2
   center_x = np.reshape(

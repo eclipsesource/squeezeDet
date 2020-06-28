@@ -102,7 +102,16 @@ def _filter_prediction(boxes, probs, cls_idx, mc):
     final_boxes = []
     final_probs = []
     final_cls_idx = []
-
+    '''
+    keep = nms(boxes, probs, mc.NMS_THRESH)
+    for i in range(len(keep)):
+    if keep[i]:
+        final_boxes.append(boxes[i])
+        final_probs.append(probs[i)
+        final_cls_idx.append(cls_idx[i])
+    return final_boxes, final_probs, final_cls_idx
+    
+    '''
     for c in range(mc.CLASSES):
       idx_per_class = [i for i in range(len(probs)) if cls_idx[i] == c]
       keep = nms(boxes[idx_per_class], probs[idx_per_class], mc.NMS_THRESH)
@@ -112,6 +121,7 @@ def _filter_prediction(boxes, probs, cls_idx, mc):
           final_probs.append(probs[idx_per_class[i]])
           final_cls_idx.append(c)
     return final_boxes, final_probs, final_cls_idx
+    
 
 
 if __name__ == '__main__':
